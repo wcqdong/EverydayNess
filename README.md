@@ -8,5 +8,6 @@ done
 todo
 1. 远程rpc
 2. 序列化
-3. 完善apt-rpc生成工具
-4. 单线程负责所有service的tick任务投递到线程池，防止每个service投递造成线程池唤醒次数过多
+3. 动态加载Service
+4. 完善apt-rpc生成工具
+5. 单线程负责所有service的tick任务投递到线程池，防止每个service投递造成线程池唤醒次数过多
