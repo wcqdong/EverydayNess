@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+group = 'org.evd'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    implementation 'org.yaml:snakeyaml:2.0'
+
+    implementation project(':core:runtime')
+    implementation project(':common')
+    implementation project(':Services:ConnService')
+    implementation project(':Services:StageService')
+
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,35 @@
+nodes:
+  - name: node1 # 节点
+    addr: tcp://127.0.0.1:15001
+    schedule:
+      - name: logic  #线程池名
+        num: 10
+        services:
+        - className: ConnService
+          name: conn
+          num: 2
+        - className: StageService
+          name: stage
+          num: 2
+
+  - name: node2 # 节点
+    addr: tcp://127.0.0.1:15001
+    schedule:
+      - name: logic  #线程池
+        num: 10
+        services:
+        - className: ConnService
+          name: conn
+          num: 2
+        - className: StageService
+          name: stage
+          num: 2
+        - className: UnionService
+          name: union
+          num: -1
+
+      - name: io  #线程池
+        services:
+        - className: DBService
+          name: DB
+          num: 5

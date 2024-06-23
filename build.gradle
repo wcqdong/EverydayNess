@@ -1,0 +1,108 @@
+ext {
+    //资源目录
+    dirResource = project(project_resource).projectDir
+}
+allprojects {
+    group 'org.evd.game'
+
+    apply plugin: 'java'
+    apply plugin: 'idea'
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    compileJava.options.encoding = 'UTF-8'
+
+    repositories {
+        maven {
+            url 'https://maven.aliyun.com/repository/public'
+        }
+        mavenLocal()
+    }
+
+    dependencies {
+
+    }
+    tasks.withType(JavaCompile) {
+//        options.compilerArgs.addAll(['--add-exports=java.base/jdk.internal.vm=ALL-UNNAMED'])
+        options.compilerArgs.addAll(['-Xlint:unchecked'])
+        options.compilerArgs.addAll(['-Xlint:-options'])
+    }
+    // 没起作用
+    tasks.withType(JavaCompile){
+        options.encoding='UTF-8'
+    }
+}
+
+//jar {
+//// 定义jar文件的基本名称
+////    baseName = 'game'
+//// 定义jar文件的版本
+//    version = '1.0.0'
+//// 排除不需要包含在jar中的文件，例如测试文件
+//    exclude '**/*Test.class'
+//// 指定manifest文件，可以自定义jar运行时的入口类等
+//    manifest {
+//        attributes(
+//                'Implementation-Title': 'Gradle Jar Example',
+//                'Implementation-Version': version
+//        )
+//    }
+//// 从其他源集（如生产源集）包含额外的源代码
+//    from sourceSets.main.output
+//// 包含额外的文件或目录
+//    from('src/main/resources') {
+//        into 'config'
+//    }
+//}
+
+//apply plugin: 'distribution'
+//
+//distributions {
+//    main {
+//        distributionBaseName = 'game'
+//
+//        contents{
+//            //配置文件
+//            from("$dirResource/config") {
+//                into "config"
+//            }
+//
+//            //依赖so,dll
+//            from("$dirResource/libs") {
+//                into 'libs'
+//
+//                include '*.dll', '*.so', '*.dylib'
+//            }
+//
+//            //shell脚本
+//            from("$dirResource/shell") {
+//                into 'shell'
+//
+//                include "*.py"
+//                include "*.bat"
+//            }
+//
+//            //项目jar包
+//            from(sourceSets.main.runtimeClasspath) {
+//                into 'module'
+//
+////                include "apt.jar"
+////                include "logic.jar"
+////                include "ocean.jar"
+////                include "common.jar"
+////                include "robot.jar"
+//            }
+//
+//            from(sourceSets.main.runtimeClasspath) {
+//                into 'libs'
+//
+//                include "*.jar"
+//
+//                //排除项目生成的jar包
+//                exclude subprojects.collect{p -> "${p.name}.jar"}
+//            }
+//        }
+//    }
+//
+//}
