@@ -5,6 +5,15 @@ plugins {
 group = 'org.example'
 version = '1.0-SNAPSHOT'
 
+sourceSets {
+    main {
+        java {
+            srcDirs += 'src/main/java'
+            srcDirs += 'src/gen/java'
+        }
+    }
+}
+
 repositories {
     mavenCentral()
 }
@@ -12,9 +21,15 @@ repositories {
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'org.apache.logging.log4j:log4j-api:2.14.1'
-    implementation 'com.alibaba:fastjson:1.2.78'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
+
+    implementation 'com.google.protobuf:protobuf-java:3.25.3'
+
+    implementation group: 'org.zeromq', name: 'jeromq', version: '0.5.4'
+    implementation group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.2'
+
+    implementation project(':core:gencode:apt-annotation')
+    annotationProcessor project(':core:gencode:apt-compiler')
 }
 tasks.withType(JavaCompile) {
     options.compilerArgs.addAll(['--add-exports=java.base/jdk.internal.vm=ALL-UNNAMED'])

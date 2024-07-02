@@ -24,6 +24,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'org.yaml:snakeyaml:2.0'
     implementation project(':core:runtime')
+
+    implementation project(':core:gencode:apt-annotation')
+    annotationProcessor project(':core:gencode:apt-compiler')
 }
 
 test {

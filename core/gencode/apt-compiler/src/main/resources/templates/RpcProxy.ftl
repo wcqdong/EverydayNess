@@ -1,10 +1,10 @@
 package ${commonPackageName};
 
-import org.evd.runtime.CallPoint;
-import org.evd.runtime.RPCProxyBase;
-import org.evd.runtime.Service;
+import org.evd.game.runtime.call.CallPoint;
+import org.evd.game.runtime.RPCProxyBase;
+import org.evd.game.runtime.Service;
 <#if singleton>
-import org.evd.runtime.DistributeConfig;
+import org.evd.game.runtime.DistributeConfig;
 </#if>
 <#if importPackages??>
     <#list importPackages as package>
@@ -46,7 +46,7 @@ public class ${className}Proxy extends RPCProxyBase {
 
     <#list methods as method>
     public ${method.returnType} ${method.methodName}(${method.formalParams}){
-        Service service = Service.GetCurrent();
+        Service service = Service.getCurrent();
         <#if method.returnType == "void">
         service.call(remote, EnumCall.${method.enumCall}, new Object[]{${method.nameParams}});
         <#else >

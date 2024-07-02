@@ -23,10 +23,11 @@ dependencies {
     // 第三方自动生成代码框架（可以通过类的调用方式来自动生成代码，简洁高效）
     implementation 'com.squareup:javapoet:1.10.0'
     implementation 'org.freemarker:freemarker:2.3.31'
+    implementation 'org.apache.commons:commons-lang3:3.14.0'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+//sourceCompatibility = JavaVersion.VERSION_1_8
+//targetCompatibility = JavaVersion.VERSION_1_8
 
 test {
     useJUnitPlatform()

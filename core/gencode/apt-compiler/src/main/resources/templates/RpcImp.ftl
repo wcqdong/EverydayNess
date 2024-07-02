@@ -1,8 +1,8 @@
 package ${packageName};
 
-import org.evd.runtime.RPCImplBase;
-import org.evd.runtime.Service;
-import org.evd.runtime.support.function.*;
+import org.evd.game.runtime.RPCImplBase;
+import org.evd.game.runtime.Service;
+import org.evd.game.runtime.support.function.*;
 <#if importPackages??>
     <#list importPackages as package>
         import ${package};
