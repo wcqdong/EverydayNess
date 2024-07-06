@@ -22,14 +22,23 @@ public class ConnServiceProxy extends RPCProxyBase {
         return new ConnServiceProxy(callPoint);
     }
 
+    /**
+    * @see org.evd.game.ConnService.ConnService#con()
+    */
     public void con(){
         Service service = Service.getCurrent();
         service.call(remote, EnumCall.ENUM_VOID_CON, new Object[]{});
     }
+    /**
+    * @see org.evd.game.ConnService.ConnService#con1()
+    */
     public void con1(){
         Service service = Service.getCurrent();
         service.call(remote, EnumCall.ENUM_VOID_CON1, new Object[]{});
     }
+    /**
+    * @see org.evd.game.ConnService.ConnService#con2()
+    */
     public void con2(){
         Service service = Service.getCurrent();
         service.call(remote, EnumCall.ENUM_VOID_CON2, new Object[]{});

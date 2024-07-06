@@ -45,6 +45,9 @@ public class ${className}Proxy extends RPCProxyBase {
     </#if>
 
     <#list methods as method>
+    /**
+    * @see ${fullClassName}#${method.methodName}()
+    */
     public ${method.returnType} ${method.methodName}(${method.formalParams}){
         Service service = Service.getCurrent();
         <#if method.returnType == "void">

@@ -22,14 +22,23 @@ public class StageServiceProxy extends RPCProxyBase {
         return new StageServiceProxy(callPoint);
     }
 
+    /**
+    * @see org.evd.game.StageService.StageService#doSome1()
+    */
     public void doSome1(int a, int b){
         Service service = Service.getCurrent();
         service.call(remote, EnumCall.ENUM_VOID_DOSOME1_INT_INT, new Object[]{a, b});
     }
+    /**
+    * @see org.evd.game.StageService.StageService#doSome2()
+    */
     public void doSome2(int a, int b){
         Service service = Service.getCurrent();
         service.call(remote, EnumCall.ENUM_VOID_DOSOME2_INT_INT, new Object[]{a, b});
     }
+    /**
+    * @see org.evd.game.StageService.StageService#doSome3()
+    */
     public String doSome3(int a){
         Service service = Service.getCurrent();
         return (String)service.callWait(remote, EnumCall.ENUM_STRING_DOSOME3_INT, new Object[]{a});

@@ -10,7 +10,7 @@ public class MethodStruct<T> {
     private Class<T> annotationClass;
     /** 包路径 */
     public String packageName;
-    public String classFullName;
+    public String fullClassName;
     public String className;
     public String methodName;
 
@@ -31,7 +31,7 @@ public class MethodStruct<T> {
         this.element = element;
         this.annotationClass = annotationClass;
         this.packageName = packageName;
-        this.classFullName = classFullName;
+        this.fullClassName = classFullName;
         this.className = className;
         this.methodName = methodName;
         this.returnType = AptUtils.typeToBase(returnType);
@@ -97,7 +97,7 @@ public class MethodStruct<T> {
     public String toString() {
         StringBuilder sbf = new StringBuilder();
         sbf.append("package ").append(packageName).append("\n");
-        sbf.append("\tclass ").append(classFullName).append("{").append("\n");
+        sbf.append("\tclass ").append(fullClassName).append("{").append("\n");
         sbf.append("\t\t").append(returnType).append(" ").append(methodName).append("(");
         for (int i = 0; i < params.length; i++) {
             sbf.append(params[i].toString());

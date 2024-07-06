@@ -74,6 +74,7 @@ public class RpcProcessor extends ProcessorBase {
         dataModel.put("packageName", struct.packageName);
         dataModel.put("commonPackageName", "org.evd.game.common.proxy");
         dataModel.put("className", struct.className);
+        dataModel.put("fullClassName", struct.fullClassName);
         dataModel.put("importPackages", importsModel);
         dataModel.put("methods", methodsModel);
         TypeElement classElement = struct.getTypeElement();
@@ -176,7 +177,7 @@ public class RpcProcessor extends ProcessorBase {
 
     private void group() {
         for (MethodStruct<Rpc> method : structList) {
-            List<MethodStruct<Rpc>> methods = classMap.computeIfAbsent(method.classFullName, k -> new ArrayList<>());
+            List<MethodStruct<Rpc>> methods = classMap.computeIfAbsent(method.fullClassName, k -> new ArrayList<>());
             methods.add(method);
         }
     }
