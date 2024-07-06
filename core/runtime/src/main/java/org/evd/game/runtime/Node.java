@@ -216,31 +216,31 @@ public class Node extends TickCase{
         service.onAttacheToNode();
     }
 
-    /**
-     * 发送call请求，由node路由到目标service
-     */
-    public void addCall(CallBase call) {
-        // 如果是同节点，直接投递到目标service
-        if (name.equals(call.to.nodeId)){
-            Service toService = services.get(call.to.servId);
-            if (toService == null){
-                LogCore.core.error("service not exist {}", call.to);
-//                throw new SysException("service not exist " + call.to);
-                return;
-            }
-            if (!toService.isRunning()){
-                LogCore.core.error("service is not running " + call.to);
-                return;
-            }
-            // 加入到目标service的消息队列
-            toService.sendCall(call);
-        }else{
-            // 因为发送到另一个节点，所以必须序列化
-            call.immutable = false;
-
-            // TODO 发送到目标node
-        }
-    }
+//    /**
+//     * 发送call请求，由node路由到目标service
+//     */
+//    public void addCall(CallBase call) {
+//        // 如果是同节点，直接投递到目标service
+//        if (name.equals(call.to.nodeId)){
+//            Service toService = services.get(call.to.servId);
+//            if (toService == null){
+//                LogCore.core.error("service not exist {}", call.to);
+////                throw new SysException("service not exist " + call.to);
+//                return;
+//            }
+//            if (!toService.isRunning()){
+//                LogCore.core.error("service is not running " + call.to);
+//                return;
+//            }
+//            // 加入到目标service的消息队列
+//            toService.sendCall(call);
+//        }else{
+//            // 因为发送到另一个节点，所以必须序列化
+//            call.immutable = false;
+//
+//            // TODO 发送到目标node
+//        }
+//    }
 
     /**
      * 发送请求
@@ -278,7 +278,7 @@ public class Node extends TickCase{
             // 先读取一个Call请求
             Object obj = input.read();
             // 正常的call类型
-            if(obj instanceof Call call){
+            if(obj instanceof CallBase call){
                 callHandle(call);
 
             // call的引用id
@@ -299,7 +299,7 @@ public class Node extends TickCase{
         switch (call) {
             // PRC远程调用请求
             case Call ignored: {
-                Service service = services.get(call.to.nodeId);
+                Service service = services.get(call.to.servId);
                 // 请求分发
                 service.addCall(call);
             }
@@ -307,7 +307,7 @@ public class Node extends TickCase{
 
             // PRC远程调用请求的返回值
             case CallResult ignored: {
-                Service service = services.get(call.to.nodeId);
+                Service service = services.get(call.to.servId);
                 service.addCall(call);
             }
             break;

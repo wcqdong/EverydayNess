@@ -2,7 +2,7 @@ package org.evd.game.gencode.rpc;
 
 import com.google.auto.service.AutoService;
 import org.evd.game.annotation.Rpc;
-import org.evd.game.annotation.ServiceClass;
+import org.evd.game.annotation.Actor;
 import org.evd.game.gencode.GenConst;
 import org.evd.game.gencode.struct.MethodStruct;
 import org.evd.game.gencode.ProcessorBase;
@@ -13,7 +13,6 @@ import org.evd.game.gencode.struct.StructFactory;
 import javax.annotation.processing.*;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import java.io.File;
 import java.util.*;
 
 
@@ -78,7 +77,7 @@ public class RpcProcessor extends ProcessorBase {
         dataModel.put("importPackages", importsModel);
         dataModel.put("methods", methodsModel);
         TypeElement classElement = struct.getTypeElement();
-        ServiceClass serviceAnnotation = classElement.getAnnotation(ServiceClass.class);
+        Actor serviceAnnotation = classElement.getAnnotation(Actor.class);
         if (serviceAnnotation == null){
             println(struct.className + "don't have @ServiceClass annotation");
             return dataModel;

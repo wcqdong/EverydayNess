@@ -1,42 +1,42 @@
 package org.evd.game.ConnService;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 
 import java.util.*;
 
-@Serializable
+@SerializeClass
 public class ConnInfo extends ConnInfoBase{
-    @SerializerField
+    @SerializeField
     public int a;
-    @SerializerField
+    @SerializeField
     public long longValue;
-    @SerializerField
+    @SerializeField
     public String stringValue;
-    @SerializerField
+    @SerializeField
     public int[] intArrayValue;
-    @SerializerField
+    @SerializeField
     public String[] stringArrayValue;
 
-    @SerializerField
+    @SerializeField
     public List<Integer> list = new ArrayList<>();
-    @SerializerField
+    @SerializeField
     public List<Integer> list1 = new LinkedList<>();
-    @SerializerField
+    @SerializeField
     public List<CoInfo> list2 = new LinkedList<>();
 
-    @SerializerField
+    @SerializeField
     public Map<Integer, String> map = new HashMap<>();
-    @SerializerField
+    @SerializeField
     public Map<Integer, String> map1 = new LinkedHashMap<>();
-    @SerializerField
+    @SerializeField
     public Map<Integer, CoInfo> map2 = new LinkedHashMap<>();
 
-    @SerializerField
+    @SerializeField
     public Set<Integer> set1 = new HashSet<>();
-    @SerializerField
+    @SerializeField
     public Set<String> set2 = new HashSet<>();
-    @SerializerField
+    @SerializeField
     public Set<CoInfo> set3 = new HashSet<>();
 
     public int getA() {

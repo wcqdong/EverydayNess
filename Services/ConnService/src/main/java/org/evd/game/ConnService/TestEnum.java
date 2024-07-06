@@ -1,8 +1,8 @@
 package org.evd.game.ConnService;
 
-import org.evd.game.annotation.Serializable;
+import org.evd.game.annotation.SerializeClass;
 
-@Serializable
+@SerializeClass
 public enum TestEnum {
 
     Test1,

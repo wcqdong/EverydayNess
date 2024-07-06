@@ -7,7 +7,7 @@ nodes:
         services:
         - className: ConnService
           name: conn
-          num: 2
+          num: 1
         - className: StageService
           name: stage
           num: 2

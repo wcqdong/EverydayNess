@@ -1,4 +1,4 @@
-package org.evd.game;
+package org.evd.game.ConnService;
 
 import org.evd.game.base.ISerializable;
 import org.evd.game.runtime.serialize.OutputStream;
@@ -10,12 +10,12 @@ import java.io.IOException;
 *
 * 注册序列化和反序列化函数指针
 */
-public final class SerializerRegister{
+final class SerializerRegister{
 
 	/**
 	* 注册
 	*/
-	public static void register(){
+	static void register(){
 		registerWrite();
 		registerRead();
 		registerReadEnum();

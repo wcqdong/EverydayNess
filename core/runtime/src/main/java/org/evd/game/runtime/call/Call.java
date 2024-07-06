@@ -1,18 +1,18 @@
 package org.evd.game.runtime.call;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 
-@Serializable
+@SerializeClass
 public class Call extends CallBase {
     /** to service后调用哪个方法 */
-    @SerializerField
+    @SerializeField
     public int methodKey;
     /** to service后调用方法的参数 */
-    @SerializerField
+    @SerializeField
     public Object[] methodParam;
     /** to service后调用的方法是否有返回值 */
-    @SerializerField
+    @SerializeField
     public boolean needResult;
 
     public CallResult createReturn() {

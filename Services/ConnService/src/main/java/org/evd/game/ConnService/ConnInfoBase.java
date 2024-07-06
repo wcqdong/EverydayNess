@@ -1,12 +1,12 @@
 package org.evd.game.ConnService;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 import org.evd.game.base.ISerializable;
 
-@Serializable
+@SerializeClass
 public class ConnInfoBase implements ISerializable {
-    @SerializerField
+    @SerializeField
     private int con1;
 
     public int getCon1() {

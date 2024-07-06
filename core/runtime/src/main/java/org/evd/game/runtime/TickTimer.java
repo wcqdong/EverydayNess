@@ -1,7 +1,7 @@
 package org.evd.game.runtime;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 import org.evd.game.base.ISerializable;
 import org.evd.game.runtime.support.LogCore;
 
@@ -10,19 +10,19 @@ import org.evd.game.runtime.support.LogCore;
  *
  * 定时器
  */
-@Serializable
+@SerializeClass
 public class TickTimer implements ISerializable {
 	/** 运行状态 */
-	@SerializerField
+	@SerializeField
 	private boolean running = false;
 	/** 间隔时间 */
-	@SerializerField
+	@SerializeField
 	private long interval = -1;
 	/** 下次执行时间 */
-	@SerializerField
+	@SerializeField
 	private long nextTime = -1;
 	/** 定时器开始的时间 */
-	@SerializerField
+	@SerializeField
 	private long startTime = -1;
 	
 	public TickTimer() { }

@@ -6,6 +6,8 @@ import org.evd.game.runtime.call.CallBase;
 import org.evd.game.runtime.call.CallPoint;
 import org.evd.game.runtime.call.CallResult;
 import org.evd.game.runtime.serialize.CallPulseBuffer;
+import org.evd.game.runtime.serialize.InputStream;
+import org.evd.game.runtime.serialize.OutputStream;
 import org.evd.game.runtime.support.LogCore;
 import org.evd.game.runtime.support.SysException;
 import org.evd.game.runtime.support.function.*;
@@ -265,7 +267,7 @@ public class Service extends TickCase{
             CallResult callReturn = call.createReturn();
             callReturn.result = result;
 
-            node.addCall(callReturn);
+            sendCall(callReturn);
         }else{
             try {
                 switch (call.methodParam.length) {
@@ -312,8 +314,7 @@ public class Service extends TickCase{
         call.methodKey = methodKey;
         call.methodParam = params;
 
-        // 发送到目标线程
-        getNode().addCall(call);
+        sendCall(call);
     }
 
     /**
@@ -335,18 +336,18 @@ public class Service extends TickCase{
 
         call.needResult = true;
 
-        // 发送到目标线程
-        getNode().addCall(call);
+        sendCall(call);
 
+        Task.ContinuationWrapper thisContinuation = runningContinuation;
         // 等待结果，内部会阻塞当前协程，直到call请求的结果返回
-        return runningContinuation.waitResult();
+        return thisContinuation.waitResult();
     }
 
     /**
      * 发送call请求
      * @param call
      */
-    public void sendCall(CallBase call) {
+    private void sendCall(CallBase call) {
         String toNodeId = call.to.nodeId;
         CallPulseBuffer buffer = callFrameBuffers.get(toNodeId);
 
@@ -359,14 +360,14 @@ public class Service extends TickCase{
         // 将要发送内容放入发送缓冲中
         // 先尝试写入 如果失败(一般都是缓冲剩余空间不足)则先清空缓冲 后再尝试写入
         // 如果还是失败 那证明有可能是发送内容过大 不进行缓冲 直接发送
-        if (buffer.writeCall(this, call)) {
+        if (!buffer.writeCall(this, call)) {
             //日志 第一次尝试写入缓冲失败
             LogCore.core.warn("第一次尝试写入缓冲失败：bufferLen={}, nodeId={}, portId={}, remoteNodeId={}", buffer.getLength(), getName(), node.getName(), toNodeId);
 
             //刷新缓冲区
             buffer.flush(node);
             //再次尝试写入缓冲
-            if (buffer.writeCall(this, call)) {
+            if (!buffer.writeCall(this, call)) {
                 //日志 第二次尝试写入缓冲失败
                 LogCore.core.error("第二次尝试写入缓冲失败, call请求最大支持2M：bufferLen={}", buffer.getLength());
             }

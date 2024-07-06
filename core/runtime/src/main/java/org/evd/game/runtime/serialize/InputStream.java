@@ -184,7 +184,7 @@ public class InputStream implements InputStreamBase {
 			} else {
 				result = doReadMap();
 			}
-		// IDistributedSerilizable接口
+		// IDistributedSerializable接口
 		} else if (wireType == DISTRIBUTED) {
 			result = doReadDistributed();
 		// protobuf消息
@@ -192,7 +192,11 @@ public class InputStream implements InputStreamBase {
 			result = doReadProtoMsg();
 		// Object[]
 		} else if (wireType == OBJECT && isArray) {
-			result = doReadObjectArray();
+			try {
+				result = doReadObjectArray();
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 		// 其余一律不支持
 		} else {
 			throw new SysException("发现无法被Distributed反序列化的类型: wireType={}, isArray={}", wireType, isArray);

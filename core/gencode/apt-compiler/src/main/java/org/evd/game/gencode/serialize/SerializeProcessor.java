@@ -1,8 +1,8 @@
 package org.evd.game.gencode.serialize;
 
 import com.google.auto.service.AutoService;
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 import org.evd.game.base.ISerializable;
 import org.evd.game.gencode.AptUtils;
 import org.evd.game.gencode.GenConst;
@@ -13,8 +13,8 @@ import org.evd.game.gencode.struct.FieldStruct;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import java.io.File;
 import java.util.*;
 
 
@@ -26,7 +26,7 @@ public class SerializeProcessor extends ProcessorBase {
     public final static String TEMPLATE_SERIALIZE_IO = "IOSerializer.ftl";
     /** REGISTER_CLASS */
     public final static String REGISTER_CLASS = "SerializerRegister";
-    public final static String REGISTER_PACKAGE = "org.evd.game";
+    public final static String REGISTER_PACKAGE = "org.evd.game.";
     /** SerializerRegister模板 */
     public final static String TEMPLATE_SERIALIZE_REGISTER = "SerializerRegister.ftl";
 
@@ -34,7 +34,7 @@ public class SerializeProcessor extends ProcessorBase {
 
     @Override
     protected Set<String> supportAnnotation() {
-        return Collections.singleton(Serializable.class.getCanonicalName());
+        return Collections.singleton(SerializeClass.class.getCanonicalName());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SerializeProcessor extends ProcessorBase {
         println("");
         println("开始执行Serialize Processor");
 
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Serializable.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(SerializeClass.class);
         if (elements == null || elements.isEmpty()) return;
         for (Element e : elements){
             structList.add(new ClassStruct(e, processingEnv));
@@ -61,8 +61,25 @@ public class SerializeProcessor extends ProcessorBase {
     }
 
     private void genSerializerRegister() {
-        Map<String, Object> rootMap = getRootMap();
-        String targetPath = getGenPath(REGISTER_PACKAGE, "a");
+
+        ClassStruct struct = structList.getFirst();
+        println("aaaa targetPath = " + struct.getPackageName());
+
+        int startIndex = struct.getPackageName().indexOf(REGISTER_PACKAGE);
+        int endIndex = struct.getPackageName().indexOf(".", startIndex + REGISTER_PACKAGE.length());
+        if (endIndex < 0)
+            endIndex = struct.getPackageName().length();
+        String packageName = struct.getPackageName().substring(startIndex, endIndex);
+        String packageDir = packageName.replaceAll("\\.", File.separator + File.separator);
+        Map<String, Object> rootMap = getRootMap(packageName);
+
+        println("aaaa targetPath = " + packageDir);
+
+        String targetPath = getProjectRootPackagePath("a");
+        println("aaaa targetPath = " + targetPath);
+
+        targetPath += packageDir + File.separator;
+        println("aaaa targetPath = " + targetPath);
         String javaFileName = REGISTER_CLASS + ".java";
         try {
             AptUtils.freeMarker(GenConst.TEMPLATE_DIR, TEMPLATE_SERIALIZE_REGISTER, rootMap, targetPath, javaFileName);
@@ -71,13 +88,13 @@ public class SerializeProcessor extends ProcessorBase {
         }
     }
 
-    private Map<String, Object> getRootMap() {
+    private Map<String, Object> getRootMap(String packageName) {
         Map<String, Object> dataModel = new HashMap<>();
         List<String> importsModel = new ArrayList<>();
         List<Map<String, Object>> fieldInfos = new ArrayList<>();
         List<Map<String, Object>> enumInfos = new ArrayList<>();
 
-        dataModel.put("packageName", "org.evd.game");
+        dataModel.put("packageName", packageName);
         dataModel.put("className", "SerializerRegister");
         dataModel.put("importPackages", importsModel);
         dataModel.put("fields", fieldInfos);
@@ -140,7 +157,7 @@ public class SerializeProcessor extends ProcessorBase {
         dataModel.put("importPackages", importsModel);
         dataModel.put("fields", fieldInfos);
 
-        for(FieldStruct f : clazz.getFields(SerializerField.class)){
+        for(FieldStruct f : clazz.getFields(SerializeField.class)){
             // 模板所需数据
             Map<String, Object> field = new LinkedHashMap<>();
             fieldInfos.add(field);

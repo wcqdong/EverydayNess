@@ -2,7 +2,7 @@ package org.evd.game.gencode;
 
 import com.google.auto.service.AutoService;
 import org.evd.game.annotation.Rpc;
-import org.evd.game.annotation.ServiceClass;
+import org.evd.game.annotation.Actor;
 import org.evd.game.gencode.struct.ClassStruct;
 
 import javax.annotation.processing.Processor;
@@ -35,7 +35,7 @@ public class ServiceProcessor extends ProcessorBase {
         messager.printMessage(Diagnostic.Kind.NOTE, "");
         messager.printMessage(Diagnostic.Kind.NOTE, "开始执行Service Processor");
 
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(ServiceClass.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Actor.class);
         if (elements == null || elements.isEmpty()) return;
 
     }

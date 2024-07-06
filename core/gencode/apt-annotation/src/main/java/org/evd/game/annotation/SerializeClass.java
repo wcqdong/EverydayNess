@@ -6,16 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 序列化字段注解
+ * 可序列化注解
  * @author zenghongming
  * @date 2020/02/09 16:59
  */
-@Retention(RetentionPolicy.SOURCE)
-@Target({ElementType.FIELD})
-public @interface SerializerField {
-    /**
-     * 是否不检查字段类型
-     * @return 不检查 true
-     */
-    boolean uncheck() default false;
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+public @interface SerializeClass {
+    /** 是否使用自定义序列化 */
+    boolean customized() default false;
 }

@@ -1,19 +1,19 @@
 package org.evd.game.ConnService;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 import org.evd.game.base.ISerializable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Serializable
+@SerializeClass
 public class CoInfo implements ISerializable {
 
-    @SerializerField
+    @SerializeField
     public String aa;
 
-    @SerializerField
+    @SerializeField
     public List<String> list = new ArrayList<>();
 
     public String getAa() {

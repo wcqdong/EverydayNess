@@ -1,19 +1,19 @@
 package org.evd.game.runtime.call;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 import org.evd.game.base.ISerializable;
 
-@Serializable
+@SerializeClass
 public abstract class CallBase implements ISerializable {
     /** ------------从哪来-------------*/
-    @SerializerField
+    @SerializeField
     public CallPoint from;
     /** ------------到哪去-------------*/
-    @SerializerField
+    @SerializeField
     public CallPoint to;
     /** 请求后回调contextid */
-    @SerializerField
+    @SerializeField
     public long id;
     /** 参数是不变的，则可以不序列化*/
     public boolean immutable;

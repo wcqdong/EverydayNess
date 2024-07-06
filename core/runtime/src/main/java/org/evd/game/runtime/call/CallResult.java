@@ -1,11 +1,11 @@
 package org.evd.game.runtime.call;
 
-import org.evd.game.annotation.Serializable;
-import org.evd.game.annotation.SerializerField;
+import org.evd.game.annotation.SerializeClass;
+import org.evd.game.annotation.SerializeField;
 
-@Serializable
+@SerializeClass
 public class CallResult extends CallBase {
-    @SerializerField
+    @SerializeField
     public Object result;
 
     public Object getResult() {

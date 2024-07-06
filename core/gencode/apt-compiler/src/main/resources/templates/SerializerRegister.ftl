@@ -15,12 +15,12 @@ import ${package};
 *
 * 注册序列化和反序列化函数指针
 */
-public final class ${className}{
+final class ${className}{
 
 	/**
 	* 注册
 	*/
-	public static void register(){
+	static void register(){
 		registerWrite();
 		registerRead();
 		registerReadEnum();
