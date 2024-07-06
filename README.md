@@ -12,6 +12,9 @@
   * pb协议
   * apt-serialize生成工具
 * 动态加载Service，实现真正的服务模块化开发
+* Module
+  * (done)service以模块化方式启动
+  * 模块化加载
 
 
 
