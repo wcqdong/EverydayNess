@@ -192,11 +192,7 @@ public class InputStream implements InputStreamBase {
 			result = doReadProtoMsg();
 		// Object[]
 		} else if (wireType == OBJECT && isArray) {
-			try {
-				result = doReadObjectArray();
-			}catch (Exception e){
-				e.printStackTrace();
-			}
+			result = doReadObjectArray();
 		// 其余一律不支持
 		} else {
 			throw new SysException("发现无法被Distributed反序列化的类型: wireType={}, isArray={}", wireType, isArray);
