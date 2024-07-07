@@ -47,13 +47,13 @@ public class CallPulseBuffer implements AutoCloseable{
 	 * 刷新缓冲区
 	 * @param node
 	 */
-	public void flush(Node node) {
+	public void flush_st(Node node) {
 		if (buffer.getLength() == 0) {
 			return;
 		}
 		
 		try {
-			node.flushCall(targetNodeId, buffer.getBuffer(), buffer.getLength());
+			node.flushCall_st(targetNodeId, buffer.getBuffer(), buffer.getLength());
 		} finally {
 			buffer.reset();
 		}

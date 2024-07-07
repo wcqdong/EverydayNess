@@ -27,6 +27,7 @@ final class SerializerRegister{
 	*/
 	private static void registerWrite(){
 		OutputStream.registerSerializeWriteFunc(-1065350591, SerializerRegister::CallIOSerializerWrite);
+		OutputStream.registerSerializeWriteFunc(287635283, SerializerRegister::CallPingIOSerializerWrite);
 		OutputStream.registerSerializeWriteFunc(326933455, SerializerRegister::CallPointIOSerializerWrite);
 		OutputStream.registerSerializeWriteFunc(1593330110, SerializerRegister::CallResultIOSerializerWrite);
 		OutputStream.registerSerializeWriteFunc(322098688, SerializerRegister::ChunkIOSerializerWrite);
@@ -37,6 +38,7 @@ final class SerializerRegister{
 	*/
 	private static void registerRead(){
 		InputStream.registerSerializeReadFunc(-1065350591, SerializerRegister::CallIOSerializerRead);
+		InputStream.registerSerializeReadFunc(287635283, SerializerRegister::CallPingIOSerializerRead);
 		InputStream.registerSerializeReadFunc(326933455, SerializerRegister::CallPointIOSerializerRead);
 		InputStream.registerSerializeReadFunc(1593330110, SerializerRegister::CallResultIOSerializerRead);
 		InputStream.registerSerializeReadFunc(322098688, SerializerRegister::ChunkIOSerializerRead);
@@ -50,6 +52,9 @@ final class SerializerRegister{
 
 	public static void CallIOSerializerWrite(OutputStream out, ISerializable ser) throws IOException{
 		org.evd.game.runtime.call.CallIOSerializer.write(out, (org.evd.game.runtime.call.Call)ser);
+	}
+	public static void CallPingIOSerializerWrite(OutputStream out, ISerializable ser) throws IOException{
+		org.evd.game.runtime.call.CallPingIOSerializer.write(out, (org.evd.game.runtime.call.CallPing)ser);
 	}
 	public static void CallPointIOSerializerWrite(OutputStream out, ISerializable ser) throws IOException{
 		org.evd.game.runtime.call.CallPointIOSerializer.write(out, (org.evd.game.runtime.call.CallPoint)ser);
@@ -68,6 +73,11 @@ final class SerializerRegister{
 		org.evd.game.runtime.call.Call call = new org.evd.game.runtime.call.Call();
 		org.evd.game.runtime.call.CallIOSerializer.read(in, call);
 		return call;
+	}
+	public static ISerializable CallPingIOSerializerRead(InputStream in) throws IOException{
+		org.evd.game.runtime.call.CallPing callPing = new org.evd.game.runtime.call.CallPing();
+		org.evd.game.runtime.call.CallPingIOSerializer.read(in, callPing);
+		return callPing;
 	}
 	public static ISerializable CallPointIOSerializerRead(InputStream in) throws IOException{
 		org.evd.game.runtime.call.CallPoint callPoint = new org.evd.game.runtime.call.CallPoint();

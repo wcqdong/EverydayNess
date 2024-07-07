@@ -15,7 +15,6 @@ public final class ${proxyName}{
 	 * 序列化
 	 * @param out 输出流
 	 * @param instance 实例
-	 * @key 属性名称
 	 */
 	public static void write(OutputStream out, ${className} instance) throws IOException {
 		<#if superClass??>

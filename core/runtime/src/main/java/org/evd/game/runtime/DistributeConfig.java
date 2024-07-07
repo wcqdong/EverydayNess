@@ -12,6 +12,6 @@ public class DistributeConfig {
     }
 
     public static void addSingleService(Service service) {
-        singletonService2Node.put(service.getName(), new CallPoint(service.getNode().getName(), service.getName()));
+        singletonService2Node.put(service.getId(), new CallPoint(service.getNode().getId(), service.getId()));
     }
 }

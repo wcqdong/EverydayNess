@@ -33,28 +33,39 @@ public class Main {
 //            throw new SysException("param Error");
 //        }
         String bootStrapName = "Bootstrap-all.yml";
-        String nodeName = "node1";
+        String nodeId = "node1";
         if (args.length > 0){
             bootStrapName = args[0];
         }
         if (args.length > 1){
-            nodeName = args[1];
+            nodeId = args[1];
         }
 
         String configPath = ConstPath.CONFIGURATION_PATH + bootStrapName;
         NodeConfig config = NodeConfig.load(configPath);
 
-        final String nName = nodeName;
+        final String nName = nodeId;
         Optional<NodeInfo> nodeInfoOptional = config.getNodes().stream().filter(n->n.getName().equals(nName)).findFirst();
         if (nodeInfoOptional.isEmpty()){
-            LogCore.core.error("[{}] node config not exist", nodeName);
+            LogCore.core.error("[{}] node config not exist", nodeId);
             return;
         }
 
         NodeInfo nodeInfo = nodeInfoOptional.get();
-        Node node = new Node(nodeName, nodeInfo.getAddr());
-        for (ScheduleInfo scheduleInfo : nodeInfo.getSchedule()){
+        Node node = new Node(nodeId, nodeInfo.getAddr());
+        for (ScheduleInfo scheduleInfo : nodeInfo.getSchedule()) {
             node.createExecutor(scheduleInfo.getName(), scheduleInfo.getNum());
+        }
+        // 节点启动
+        node.start();
+        // addRemoteNode
+        for (NodeInfo remoteInfo : config.getNodes()){
+            if (!node.getId().equals(remoteInfo.getName())){
+                node.addRemoteNode(remoteInfo.getName(), remoteInfo.getAddr());
+            }
+        }
+        // addService
+        for (ScheduleInfo scheduleInfo : nodeInfo.getSchedule()){
             for (ServiceInfo serviceInfo : scheduleInfo.getServices()){
                 Class<ServiceInfo> clazz = (Class<ServiceInfo>) Class.forName("org.evd.game." + serviceInfo.getClassName() + "." + serviceInfo.getClassName());
                 if (clazz == null){
@@ -63,14 +74,14 @@ public class Main {
                 // TODO 按service名加载 XXXService.jar
 
 
-                Constructor con = clazz.getConstructor(Node.class, String.class, String.class);
+                Constructor con = clazz.getConstructor(Node.class, String.class, String.class, int.class);
                 if (serviceInfo.getNum() < 0){
-                    Service service = (Service)con.newInstance(node, serviceInfo.getName(), scheduleInfo.getName());
+                    Service service = (Service)con.newInstance(node, serviceInfo.getName(), scheduleInfo.getName(), serviceInfo.getInterval());
                     node.addService(service);
                     DistributeConfig.addSingleService(service);
                 }else{
                     for (int i=1; i<=serviceInfo.getNum(); ++i){
-                        Service service = (Service)con.newInstance(node, serviceInfo.getName() + i, scheduleInfo.getName());
+                        Service service = (Service)con.newInstance(node, serviceInfo.getName() + i, scheduleInfo.getName(), serviceInfo.getInterval());
                         node.addService(service);
                     }
                 }
@@ -103,9 +114,6 @@ public class Main {
         for (TwoTuple<Integer, Method> starter : starters){
             starter.second.invoke(null, node);
         }
-
-        // 节点启动
-        node.start();
 
         // 系统关闭时进行清理
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

@@ -10,7 +10,6 @@ public final class CallResultIOSerializer{
 	 * 序列化
 	 * @param out 输出流
 	 * @param instance 实例
-	 * @key 属性名称
 	 */
 	public static void write(OutputStream out, CallResult instance) throws IOException {
 		org.evd.game.runtime.call.CallBaseIOSerializer.write(out, instance);

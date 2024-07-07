@@ -10,7 +10,7 @@ import org.evd.game.runtime.Service;
 public class StageServiceProxy extends RPCProxyBase {
 
     public final static class EnumCall{
-        public final static int ENUM_VOID_DOSOME1_INT_INT = 0;
+        public final static int ENUM_STRING_DOSOME1_INT_INT = 0;
         public final static int ENUM_VOID_DOSOME2_INT_INT = 1;
         public final static int ENUM_STRING_DOSOME3_INT = 2;
     }
@@ -25,9 +25,9 @@ public class StageServiceProxy extends RPCProxyBase {
     /**
     * @see org.evd.game.StageService.StageService#doSome1()
     */
-    public void doSome1(int a, int b){
+    public String doSome1(int a, int b){
         Service service = Service.getCurrent();
-        service.call(remote, EnumCall.ENUM_VOID_DOSOME1_INT_INT, new Object[]{a, b});
+        return (String)service.callWait(remote, EnumCall.ENUM_STRING_DOSOME1_INT_INT, new Object[]{a, b});
     }
     /**
     * @see org.evd.game.StageService.StageService#doSome2()

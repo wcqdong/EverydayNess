@@ -29,7 +29,7 @@ public class FrameStatistics {
         this.tickCase = tickCase;
     }
 
-    public void tick(long timeCur, double tick) {
+    public void tick_t(long timeCur, double tick) {
         ++n;
         avgTime = ((n - 1) * avgTime + tick) / n;
 
@@ -47,7 +47,7 @@ public class FrameStatistics {
 
         if(timeCur > printTime){
             printTime += PRINT_INTERVAL;
-            LogCore.statistics.info("【{}】线程心跳频率 {}ms", tickCase.getName(), (int)print_avgTime);
+            LogCore.statistics.info("【{}】线程心跳频率 {}ms", tickCase.getId(), (int)print_avgTime);
             print_n = 0;
             print_avgTime = 0;
         }

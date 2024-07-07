@@ -6,8 +6,6 @@ import org.evd.game.runtime.call.CallBase;
 import org.evd.game.runtime.call.CallPoint;
 import org.evd.game.runtime.call.CallResult;
 import org.evd.game.runtime.serialize.CallPulseBuffer;
-import org.evd.game.runtime.serialize.InputStream;
-import org.evd.game.runtime.serialize.OutputStream;
 import org.evd.game.runtime.support.LogCore;
 import org.evd.game.runtime.support.SysException;
 import org.evd.game.runtime.support.function.*;
@@ -19,13 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+/**
+ * 服务
+ */
 public class Service extends TickCase{
 
-    public void addCall(CallBase call) {
+    public void addCall_snt(CallBase call) {
         calls.add(call);
     }
 
-    public CallBase removeCallFrameReferences(long callId) {
+    public CallBase removeCallFrameReferences_st(long callId) {
         return callFrameReferences.remove(callId);
     }
 
@@ -36,7 +37,7 @@ public class Service extends TickCase{
         Closed
     }
     /** node */
-    private final Node node;    public Node getNode() { return node; }
+    protected final Node node;    public Node getNode() { return node; }
     /** 线程池名字 */
     private final String scheduledName;     public String getScheduledName(){ return scheduledName; }
 
@@ -57,9 +58,8 @@ public class Service extends TickCase{
     private final Map<Long, Task.ContinuationWrapper> continuations = new HashMap<>();
     /** ThreadLocal */
     private final static ThreadLocal<Service> threadLocal = new ThreadLocal<>();
-    public static <T extends Service> Service getCurrent(){
-        Service cur = threadLocal.get();
-        return cur;
+    public static Service getCurrent(){
+        return threadLocal.get();
     }
     /** rpc调用路由到接收函数的类 */
     private RPCImplBase methodFunctionProxy;
@@ -77,7 +77,7 @@ public class Service extends TickCase{
         this.scheduledName = scheduledName;
         // scope与service同名
         scope = new ContinuationScope(name);
-        callPoint = new CallPoint(node.getName(), name);
+        callPoint = new CallPoint(node.getId(), name);
 
     }
 
@@ -85,58 +85,49 @@ public class Service extends TickCase{
         this(node, name, scheduledName, TICK_INTERVAL);
     }
 
-    /**
-     * 当service加入到node
-     * 由系统线程池执行
-     */
-    final void onAttacheToNode() {
+    @Override
+    protected void init_t() {
+        // 加入到services
+        node.attachToNode(this);
+
         // 修改状态
         status = CaseStatus.Running;
         // 先执行初始化
-        initVirtual();
-        // 马上就可以执行pulse了
-        pulseCase();
+        initVirtual_t();
     }
 
     /**
      * init方法交给协程执行
      * 因为init中可能存在异步操作，异步可能触发协程yield，导致线程yield
      */
-    private void initVirtual() {
+    private void initVirtual_t() {
         // 申请一个协程
-        Task.ContinuationWrapper context = continuationPool.apply();
+        Task.ContinuationWrapper continuation = continuationPool.apply();
         // 绑定行为
-        context.bindTask(new Task.TaskParam0(this::init), applyConId());
+        continuation.bindTask(new Task.TaskParam0(this::init), applyConId());
         // 设置为当前正在执行
-        runningContinuation = context;
+        runningContinuation = continuation;
         // 执行协程
-        context.runVirtual();
+        continuation.runVirtual();
         // 取消正在执行
         this.runningContinuation = null;
     }
 
-    /**
-     * init由协程执行，交给子类继承
-     */
-    public void init() {
-    }
-
     @Override
     protected void pulse() {
-        // TODO 这一帧的时间
         // service放到threadLocal，以便于逻辑中从当前上线文中获取
         threadLocal.set(this);
 
-        pulseAffirm();
-        pulseCalls();
+        pulseAffirm_st();
+        pulseCalls_st();
 
-        tickVirtual();
+        tickVirtual_st();
 
-        pulseTask();
-        pulseEntity();
+        pulseTask_st();
+        pulseEntity_st();
 
         //刷新call发送缓冲区
-        flushCallFrameBuffers();
+        flushCallFrameBuffers_st();
 
         // 逻辑结束后移除，因为下次tick会分配其他线程
         threadLocal.remove();
@@ -145,7 +136,7 @@ public class Service extends TickCase{
     /**
      * tick交给协程执行
      */
-    private void tickVirtual() {
+    private void tickVirtual_st() {
         // 申请一个协程
         Task.ContinuationWrapper context = continuationPool.apply();
         // 绑定行为
@@ -162,21 +153,21 @@ public class Service extends TickCase{
 
     }
 
-    private void pulseEntity() {
+    private void pulseEntity_st() {
         // todo 处理标脏的数据实体
     }
 
-    private void pulseTask() {
+    private void pulseTask_st() {
         // todo 定时任务
     }
 
     /**
      * 刷新远程调用RPC缓冲区
      */
-    private void flushCallFrameBuffers() {
+    private void flushCallFrameBuffers_st() {
         for (CallPulseBuffer frameCache : callFrameBuffers.values()) {
             try {
-                frameCache.flush(node);
+                frameCache.flush_st(node);
             } catch (Throwable e) {
                 // 不做任何处理 仅仅抛出异常
                 // 避免因为一个任务的出错 造成后续的任务无法继续执行 需要等到下一个心跳
@@ -195,7 +186,7 @@ public class Service extends TickCase{
      * 从并发队列中转移到本线程内的队列
      * 如果取一个执行一个，可能因为执行时间长 同时并发队列一直被add，导致源源不断从并发队列中取出call，从而导致此帧时间过长
      */
-    private void pulseAffirm() {
+    private void pulseAffirm_st() {
         while (!calls.isEmpty()){
             affirmCalls.add(calls.poll());
         }
@@ -204,21 +195,21 @@ public class Service extends TickCase{
     /**
      * 执行call请求
      */
-    private void pulseCalls() {
+    private void pulseCalls_st() {
         for (CallBase call : affirmCalls){
-            dispatchCall(call);
+            dispatchCall_st(call);
         }
         affirmCalls.clear();
     }
 
-    private void dispatchCall(CallBase callbase) {
+    private void dispatchCall_st(CallBase callbase) {
         Task.ContinuationWrapper context;
         // 发送的call
         if (callbase instanceof Call call){
             // 申请一个协程
             context = continuationPool.apply();
             // 绑定行为
-            context.bindTask(new Task.TaskParam1<>(this::dispatch, call), applyConId());
+            context.bindTask(new Task.TaskParam1<>(this::dispatch_st, call), applyConId());
         }
         // 返回的callResult
         else {
@@ -245,7 +236,7 @@ public class Service extends TickCase{
      * @param call
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public void dispatch(Call call){
+    public void dispatch_st(Call call){
         Object func = getMethodFunction(call.methodKey);
         Object[] m = call.methodParam;
         if (call.needResult){
@@ -267,7 +258,7 @@ public class Service extends TickCase{
             CallResult callReturn = call.createReturn();
             callReturn.result = result;
 
-            sendCall(callReturn);
+            sendCall_st(callReturn);
         }else{
             try {
                 switch (call.methodParam.length) {
@@ -314,7 +305,7 @@ public class Service extends TickCase{
         call.methodKey = methodKey;
         call.methodParam = params;
 
-        sendCall(call);
+        sendCall_st(call);
     }
 
     /**
@@ -336,7 +327,7 @@ public class Service extends TickCase{
 
         call.needResult = true;
 
-        sendCall(call);
+        sendCall_st(call);
 
         Task.ContinuationWrapper thisContinuation = runningContinuation;
         // 等待结果，内部会阻塞当前协程，直到call请求的结果返回
@@ -347,7 +338,7 @@ public class Service extends TickCase{
      * 发送call请求
      * @param call
      */
-    private void sendCall(CallBase call) {
+    private void sendCall_st(CallBase call) {
         String toNodeId = call.to.nodeId;
         CallPulseBuffer buffer = callFrameBuffers.get(toNodeId);
 
@@ -362,10 +353,10 @@ public class Service extends TickCase{
         // 如果还是失败 那证明有可能是发送内容过大 不进行缓冲 直接发送
         if (!buffer.writeCall(this, call)) {
             //日志 第一次尝试写入缓冲失败
-            LogCore.core.warn("第一次尝试写入缓冲失败：bufferLen={}, nodeId={}, portId={}, remoteNodeId={}", buffer.getLength(), getName(), node.getName(), toNodeId);
+            LogCore.core.warn("第一次尝试写入缓冲失败：bufferLen={}, nodeId={}, portId={}, remoteNodeId={}", buffer.getLength(), getId(), node.getId(), toNodeId);
 
             //刷新缓冲区
-            buffer.flush(node);
+            buffer.flush_st(node);
             //再次尝试写入缓冲
             if (!buffer.writeCall(this, call)) {
                 //日志 第二次尝试写入缓冲失败

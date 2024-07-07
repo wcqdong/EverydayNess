@@ -82,7 +82,7 @@ public class RemoteNode {
 	public void ping() {
 		// 创建并发送测试请求
 		CallPing call = new CallPing();
-		call.from = new CallPoint(localNode.getName(), null);
+		call.from = new CallPoint(localNode.getId(), null);
 		call.to = new CallPoint(remoteId, null);
 		call.addr = localNode.getAddr();
 
@@ -92,7 +92,7 @@ public class RemoteNode {
 	/**
 	 * 处理连接测试请求
 	 */
-	public void pingHandle() {
+	public void pingHandle_nt() {
 		// 非活跃的情况下收到连接测试
 		if (!isActive()) {
 			LogCore.remote.info("远程Node激活：id={}, addr={}", remoteId, remoteAddr);
@@ -151,10 +151,6 @@ public class RemoteNode {
 	 * @param buf buf必须是提前copy过的
 	 */
 	public void send(byte[] buf) {
-		//（zmq内部不是线程安全的，必须做同步发送）
-//		synchronized (zmqPush) {
-//			zmqPush.send(buf, 0, size, 0);
-//		}
 		zmqPush.send(buf, 0);
 	}
 

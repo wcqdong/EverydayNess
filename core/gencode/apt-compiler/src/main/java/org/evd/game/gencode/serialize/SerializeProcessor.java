@@ -63,7 +63,6 @@ public class SerializeProcessor extends ProcessorBase {
     private void genSerializerRegister() {
 
         ClassStruct struct = structList.getFirst();
-        println("aaaa targetPath = " + struct.getPackageName());
 
         int startIndex = struct.getPackageName().indexOf(REGISTER_PACKAGE);
         int endIndex = struct.getPackageName().indexOf(".", startIndex + REGISTER_PACKAGE.length());
@@ -73,13 +72,9 @@ public class SerializeProcessor extends ProcessorBase {
         String packageDir = packageName.replaceAll("\\.", File.separator + File.separator);
         Map<String, Object> rootMap = getRootMap(packageName);
 
-        println("aaaa targetPath = " + packageDir);
-
         String targetPath = getProjectRootPackagePath("a");
-        println("aaaa targetPath = " + targetPath);
 
         targetPath += packageDir + File.separator;
-        println("aaaa targetPath = " + targetPath);
         String javaFileName = REGISTER_CLASS + ".java";
         try {
             AptUtils.freeMarker(GenConst.TEMPLATE_DIR, TEMPLATE_SERIALIZE_REGISTER, rootMap, targetPath, javaFileName);

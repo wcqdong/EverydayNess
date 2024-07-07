@@ -1,6 +1,6 @@
 package org.evd.game.runtime.serialize;
 
-import org.evd.game.runtime.support.Utils;
+import org.evd.game.runtime.support.RuntimeUtils;
 
 /**
  * 
@@ -11,6 +11,6 @@ public class DistrSerilizableException extends RuntimeException {
 	private static final long serialVersionUID = 1;
 
 	public DistrSerilizableException(String str, Object...params) {
-		super(Utils.createStr(str, params));
+		super(RuntimeUtils.createStr(str, params));
 	}
 }

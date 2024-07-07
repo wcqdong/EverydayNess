@@ -10,7 +10,6 @@ public final class TickTimerIOSerializer{
 	 * 序列化
 	 * @param out 输出流
 	 * @param instance 实例
-	 * @key 属性名称
 	 */
 	public static void write(OutputStream out, TickTimer instance) throws IOException {
 		out.writeBoolean(instance.isRunning());

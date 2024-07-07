@@ -9,7 +9,7 @@ import org.evd.game.runtime.support.function.*;
 */
 public class StageServiceImpl extends RPCImplBase {
     public final static class EnumCall{
-        public final static int ENUM_VOID_DOSOME1_INT_INT = 0;
+        public final static int ENUM_STRING_DOSOME1_INT_INT = 0;
         public final static int ENUM_VOID_DOSOME2_INT_INT = 1;
         public final static int ENUM_STRING_DOSOME3_INT = 2;
     }
@@ -18,8 +18,8 @@ public class StageServiceImpl extends RPCImplBase {
     public Object getMethodFunction(Service serv, int methodKey) {
         StageService service = (StageService) serv;
         switch (methodKey){
-            case EnumCall.ENUM_VOID_DOSOME1_INT_INT:
-                return (Function2<Integer, Integer>)service::doSome1;
+            case EnumCall.ENUM_STRING_DOSOME1_INT_INT:
+                return (ReturnFunction2<String, Integer, Integer>)service::doSome1;
             case EnumCall.ENUM_VOID_DOSOME2_INT_INT:
                 return (Function2<Integer, Integer>)service::doSome2;
             case EnumCall.ENUM_STRING_DOSOME3_INT:

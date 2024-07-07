@@ -28,20 +28,20 @@ public class Node extends TickCase{
     /** node包含的services */
     private final ConcurrentHashMap<Object, Service> services = new ConcurrentHashMap<>();
     /** 地址 */
-    private String addr;
+    private final String addr;
     /** 本次心跳要发送给远程note的call请求 */
-    private final List<RemoteCall> pulseRemoteCalls = new ArrayList<>();
+    private final List<RemoteCall> affirmRemoteCalls = new ArrayList<>();
     /** ZMQ上下文 */
     protected final ZContext zmqContext;
     /** ZMQ连接 */
     protected final ZMQ.Socket zmqPull;
 
-    private byte[] remoteReceiveBuffer = BufferPool.allocate();
+    private final byte[] remoteReceiveBuffer = BufferPool.allocate();
     /** 远程Node调用定时器 */
     private final TickTimer remoteNodePulseTimer = new TickTimer(RemoteNode.INTERVAL_PING, true);
 
     public Node(String name, String addr){
-        super(name, TICK_INTERVAL);
+        super(name, 1);
         this.addr = addr;
 
         this.zmqContext = new ZContext();
@@ -68,35 +68,35 @@ public class Node extends TickCase{
     @Override
     protected void pulse() {
         // 确认本次心跳要发送的remoteCall
-        pulseAffirmRemoteCall();
+        pulseAffirmRemoteCall_nt();
         // 发送remoteCall
-        pulseSendRemoteCall();
+        pulseSendRemoteCall_nt();
 
         //接受其他Node发送过来的Call调用
-        pulseCallPuller();
+        pulseCallPuller_nt();
         //调用远程Node的心跳操作
-        pulseRemoteNodes();
+        pulseRemoteNodes_nt();
     }
 
-    private void pulseAffirmRemoteCall() {
+    private void pulseAffirmRemoteCall_nt() {
         // 本心跳要执行的call
-        RemoteCall call = null;
+        RemoteCall call;
         while ((call = remoteCalls.poll()) != null) {
-            pulseRemoteCalls.add(call);
+            affirmRemoteCalls.add(call);
         }
     }
 
-    private void pulseSendRemoteCall() {
-        for (RemoteCall call : pulseRemoteCalls){
+    private void pulseSendRemoteCall_nt() {
+        for (RemoteCall call : affirmRemoteCalls){
             sendCall(call);
         }
-        pulseRemoteCalls.clear();
+        affirmRemoteCalls.clear();
     }
 
     /**
      * 接受其他Node发送过来的Call请求
      */
-    private void pulseCallPuller() {
+    private void pulseCallPuller_nt() {
         while (true) {
             try {
                 // 接受到的字节流长度
@@ -108,7 +108,7 @@ public class Node extends TickCase{
                 }
 
                 // 处理Call请求
-                remoteCallHandle(remoteReceiveBuffer, recvLen);
+                remoteCallHandle_nt(remoteReceiveBuffer, recvLen);
             } catch(Exception e) {
                 // 吞掉并打印异常
                 LogCore.core.error("", e);
@@ -120,14 +120,14 @@ public class Node extends TickCase{
      * @param buf
      * @param len
      */
-    private void remoteCallHandle(byte[] buf, int len) {
+    private void remoteCallHandle_nt(byte[] buf, int len) {
         // 转化为输出流
         InputStream input = new InputStream(buf, 0, len);
         // 是否已读取到末尾
         while (!input.isAtEnd()) {
             // 先读取一个Call请求
             CallBase call = input.read();
-            callHandle(call);
+            callHandle_snt(call);
         }
     }
 
@@ -147,7 +147,7 @@ public class Node extends TickCase{
     /**
      * 调用远程Node的心跳操作
      */
-    private void pulseRemoteNodes() {
+    private void pulseRemoteNodes_nt() {
         // 检查时间间隔
         if (!remoteNodePulseTimer.isPeriod(timeCurrent)) {
             return;
@@ -165,9 +165,9 @@ public class Node extends TickCase{
      */
     @Override
     protected void onStart() {
-        if (scheduledExecutors.isEmpty()){
-            throw new SysException("node还为创建线程池");
-        }
+//        if (scheduledExecutors.isEmpty()){
+//            throw new SysException("node还为创建线程池");
+//        }
 
         List<Service> pendingAdd = new ArrayList<>();
         for (Map.Entry<Object, Service> entry: services.entrySet()){
@@ -189,58 +189,23 @@ public class Node extends TickCase{
     public void addService(Service service){
         // node还未启动，services起到pending暂存的作用
         if (status == CaseStatus.New){
-            services.put(service.getName(), service);
+            services.put(service.getId(), service);
         }else{
             Optional<ScheduledExecutor> result = scheduledExecutors.stream().filter(s->s.getName().equals(service.getScheduledName())).findFirst();
             if (result.isEmpty()){
-                LogCore.core.error("[{}]服务找不到对应的调度器[{}]", service.getName(), service.getScheduledName());
+                LogCore.core.error("[{}]服务找不到对应的调度器[{}]", service.getId(), service.getScheduledName());
                 return;
             }
             ScheduledExecutor scheduledExecutor = result.get();
             service.bindScheduledExecutor(scheduledExecutor);
             service.start();
-
-            // 提交task，task中会添加并启动service
-            scheduledExecutor.submit(new Task.TaskParam1<>(this::attachService, service));
         }
     }
 
-    /**
-     * 真正执行service添加到node上
-     * @param service
-     */
-    private void attachService(Service service){
-        // 加入到services
-        services.put(service.getName(), service);
-
-        service.onAttacheToNode();
+    void attachToNode(Service service){
+        services.put(service.getId(), service);
     }
 
-//    /**
-//     * 发送call请求，由node路由到目标service
-//     */
-//    public void addCall(CallBase call) {
-//        // 如果是同节点，直接投递到目标service
-//        if (name.equals(call.to.nodeId)){
-//            Service toService = services.get(call.to.servId);
-//            if (toService == null){
-//                LogCore.core.error("service not exist {}", call.to);
-////                throw new SysException("service not exist " + call.to);
-//                return;
-//            }
-//            if (!toService.isRunning()){
-//                LogCore.core.error("service is not running " + call.to);
-//                return;
-//            }
-//            // 加入到目标service的消息队列
-//            toService.sendCall(call);
-//        }else{
-//            // 因为发送到另一个节点，所以必须序列化
-//            call.immutable = false;
-//
-//            // TODO 发送到目标node
-//        }
-//    }
 
     /**
      * 发送请求
@@ -248,11 +213,11 @@ public class Node extends TickCase{
      * @param buffer
      * @param bufferLength
      */
-    public void flushCall(String nodeId, byte[] buffer, int bufferLength) {
+    public void flushCall_st(String nodeId, byte[] buffer, int bufferLength) {
         // 同一Node下 无需走传输协议 内部直接接收即可
-        if (name.equals(nodeId)) {
+        if (id.equals(nodeId)) {
             InputStream input = new InputStream(buffer, 0, bufferLength);
-            localCallHandle(input);
+            localCallHandle_st(input);
             // 其余的需要通过远程Node来发送请求值目标Node
         } else {
             byte[] copy = new byte[bufferLength];
@@ -271,7 +236,7 @@ public class Node extends TickCase{
     /**
      * 处理Call请求
      */
-    public void localCallHandle(InputStream input){
+    public void localCallHandle_st(InputStream input){
 
         // 是否已读取到末尾
         while (!input.isAtEnd()) {
@@ -279,14 +244,14 @@ public class Node extends TickCase{
             Object obj = input.read();
             // 正常的call类型
             if(obj instanceof CallBase call){
-                callHandle(call);
+                callHandle_snt(call);
 
             // call的引用id
             }else {
                 long callId = (long)obj;
                 Service service = Service.getCurrent();
                 // 如果是引用方式，调用callHandle此方法的一定是某个port，可以放心的Port.getCurrent()
-                callHandle(service.removeCallFrameReferences(callId));
+                callHandle_snt(service.removeCallFrameReferences_st(callId));
             }
         }
     }
@@ -294,21 +259,21 @@ public class Node extends TickCase{
     /**
      * 处理接收到的Call请求
      */
-    public void callHandle(CallBase call) {
+    public void callHandle_snt(CallBase call) {
         // 根据请求类型来分别处理
         switch (call) {
             // PRC远程调用请求
             case Call ignored: {
                 Service service = services.get(call.to.servId);
                 // 请求分发
-                service.addCall(call);
+                service.addCall_snt(call);
             }
             break;
 
             // PRC远程调用请求的返回值
             case CallResult ignored: {
                 Service service = services.get(call.to.servId);
-                service.addCall(call);
+                service.addCall_snt(call);
             }
             break;
 
@@ -318,10 +283,11 @@ public class Node extends TickCase{
                 RemoteNode node = remoteNodes.get(call.from.nodeId);
                 // 第一次收到连接检测 反向增加一个对方的远程Node
                 if (node == null) {
+                    // 只有node之间会发ping消息
                     node = addRemoteNode(call.from.nodeId, callPing.addr);
                 }
                 // 处理连接检测请求
-                node.pingHandle();
+                node.pingHandle_nt();
             }
             break;
             default:
@@ -335,20 +301,17 @@ public class Node extends TickCase{
      * @param addr
      */
     public RemoteNode addRemoteNode(String name, String addr) {
-        if(!(status == CaseStatus.Running)){
-            return null;
-        }
         // 创建远程Node并与本Node相连
         RemoteNode remote = new RemoteNode(this, name, addr);
         remoteNodes.put(name, remote);
 
-        // logRemote.info("添加远程node：name={},addr={}", name, addr);
+        LogCore.remote.info("添加远程node：name={},addr={}", name, addr);
         return remote;
     }
 
 
     public void remove(Service service) {
-        services.remove(service.getName());
+        services.remove(service.getId());
     }
 
     public String getAddr() {

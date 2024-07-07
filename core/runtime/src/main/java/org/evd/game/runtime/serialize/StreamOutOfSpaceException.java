@@ -1,7 +1,7 @@
 package org.evd.game.runtime.serialize;
 
 
-import org.evd.game.runtime.support.Utils;
+import org.evd.game.runtime.support.RuntimeUtils;
 
 /**
  * 
@@ -23,7 +23,7 @@ public class StreamOutOfSpaceException extends RuntimeException {
 	 * @return
 	 */
 	private static String createStr(String str, Object...params) {
-		String msg = Utils.createStr(str, params);
+		String msg = RuntimeUtils.createStr(str, params);
 		
 		if (msg.length() > 500) {
 			return msg.substring(0, 500) + "...";

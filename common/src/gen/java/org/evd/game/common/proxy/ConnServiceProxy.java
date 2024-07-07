@@ -10,7 +10,7 @@ import org.evd.game.runtime.Service;
 public class ConnServiceProxy extends RPCProxyBase {
 
     public final static class EnumCall{
-        public final static int ENUM_VOID_CON = 0;
+        public final static int ENUM_STRING_CON = 0;
         public final static int ENUM_VOID_CON1 = 1;
         public final static int ENUM_VOID_CON2 = 2;
     }
@@ -25,9 +25,9 @@ public class ConnServiceProxy extends RPCProxyBase {
     /**
     * @see org.evd.game.ConnService.ConnService#con()
     */
-    public void con(){
+    public String con(){
         Service service = Service.getCurrent();
-        service.call(remote, EnumCall.ENUM_VOID_CON, new Object[]{});
+        return (String)service.callWait(remote, EnumCall.ENUM_STRING_CON, new Object[]{});
     }
     /**
     * @see org.evd.game.ConnService.ConnService#con1()
