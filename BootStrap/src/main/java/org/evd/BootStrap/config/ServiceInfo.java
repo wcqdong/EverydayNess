@@ -4,6 +4,7 @@ public class ServiceInfo {
     private String className;
     private String name;
     private int num;
+    private int interval = 5;
 
     public String getClassName() {
         return className;
@@ -27,6 +28,14 @@ public class ServiceInfo {
 
     public void setNum(int num) {
         this.num = num;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(int interval) {
+        this.interval = interval;
     }
 }
 
